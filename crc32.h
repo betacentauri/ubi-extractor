@@ -1,0 +1,1 @@
+uint32_t mtd_crc32(uint32_t, const void *, int);
