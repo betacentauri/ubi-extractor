@@ -79,12 +79,6 @@ int check_ec_header(char* buffer, int verbose)
 	return 1;
 }
 
-int read_ubigen_vol_info()
-{
-	struct ubigen_vol_info* vi;
-	
-}
-
 int check_vid_header(char* buffer, int verbose)
 {
 	vid_hdr = (struct ubi_vid_hdr*) (buffer + vid_hdr_offset);
@@ -139,7 +133,6 @@ int check_vid_header(char* buffer, int verbose)
 
 int readChar(unsigned int ch, int *i)
 {
-	unsigned int b;
 	char buf;
 	++*i;
 	if (read(ubi_fd, &buf, 1) <= 0)
@@ -196,7 +189,7 @@ int guess_peb_size(int verbose)
 
 int read_volume_table(struct args* args, char* buffer)
 {
-	int i;
+	unsigned int i;
 	struct ubi_vtbl_record* vtbl_rec;
 	if (args->list_volumes)
 		printf("\nFound volumes:\n");
@@ -277,7 +270,7 @@ int process_file(struct args* args)
 				printf("Error seeking\n");
 				goto err;
 			}
-			if (write(args->out_tmp_fds[vol_id], buffer + data_offset, peb_size - data_offset - data_pad) != peb_size - data_offset - data_pad)
+			if (write(args->out_tmp_fds[vol_id], buffer + data_offset, peb_size - data_offset - data_pad) != (unsigned long)(peb_size - data_offset - data_pad))
 			{
 				printf("Error: Writing ubi file\n");
 				goto err;
