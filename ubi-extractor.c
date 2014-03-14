@@ -85,7 +85,7 @@ int read_args(int argc, char *argv[])
 					if (strlen(optarg) <= 128)
 					{
 						printf("Process volume %s\n", optarg);
-						strcpy(args.volumename, optarg);
+						strcpy(args.input_volumename, optarg);
 						args.volume = 1;
 					}
 				}
@@ -107,9 +107,15 @@ int read_args(int argc, char *argv[])
 	}
 	if (args.inputfile == 0)
 	{
-		printf("\nError: Missing input file\n\n");
+		printf("Error: Missing input file\n\n");
 		args.help = 1;
 		return 0;
+	}
+	if (args.outputdir == 0)
+	{
+		printf("Warning: Using ./ as output directory\n");
+		strcpy(args.outputdirname, "./");
+		args.outputdir = 1;
 	}
 
 	return 1;
@@ -132,7 +138,7 @@ int main(int argc, char *argv[])
 
 	if (!args.nounubi)
 	{
-		if (!unubinize(args))
+		if (!unubinize(&args))
 		{
 			return 1;
 		}
