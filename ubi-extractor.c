@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
+#include <fcntl.h>
 #include "ubi-media.h"
 #include "ubi-extractor.h"
 
@@ -15,8 +16,7 @@ void printUsage()
 	printf("Parameter:\n");
 	printf("   -n --nounubi          use already unubinized input file\n");
 	printf("   -l --listvolumes      list ubi volumes\n");
-	printf("   -x --extract          extract ubi volume(s)\n");
-	printf("   -s --show             prints file and directory structure to stdout\n");
+	printf("   -s --show             instead of extract print file and directory structure to stdout\n");
 	printf("   -i file --input=x     input file\n");
 	printf("   -o dir --output=x     output directory\n");
 	printf("   -m volume --volume=x  use specific volume (e.g. -m rootfs)\n");
@@ -28,11 +28,10 @@ int read_args(int argc, char *argv[])
 {
 	int option_index = 0;
 	int opt;
-	static const char *short_options = "ulxsi:o:m:vh";
+	static const char *short_options = "ulsi:o:m:vh";
 	static const struct option long_options[] = {
 												{"nounubi"    , no_argument      , NULL, 'n'},
 												{"listvolumes", no_argument      , NULL, 'l'},
-												{"extract"    , no_argument      , NULL, 'x'},
 												{"show"       , no_argument      , NULL, 's'},
 												{"input"      , required_argument, NULL, 'i'},
 												{"output"     , required_argument, NULL, 'o'},
@@ -50,9 +49,6 @@ int read_args(int argc, char *argv[])
 				break;
 			case 'l':
 				args.list_volumes = 1;
-				break;
-			case 'x':
-				args.extract = 1;
 				break;
 			case 's':
 				args.show = 1;
@@ -121,6 +117,17 @@ int read_args(int argc, char *argv[])
 	return 1;
 }
 
+int open_file(int& fd, char* filename)
+{
+	fd = open(filename, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Error: Could not open file %s\n", filename);
+		return 0;
+	}
+	return 1;
+}
+
 int main(int argc, char *argv[])
 {
 	printf("Ubi extractor version %s\n", version_string);
@@ -143,6 +150,8 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
+
+	ubifs_reader(args);
 
 	return 0;
 }

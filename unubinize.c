@@ -7,7 +7,7 @@
 #include "ubi-media.h"
 #include "ubi-extractor.h"
 
-int ubifs_fd;
+int ubi_fd;
 unsigned long peb_size = 0;
 unsigned long vid_hdr_offset = 0;
 unsigned long data_offset = 0;
@@ -16,17 +16,6 @@ struct ubi_vid_hdr* vid_hdr;
 char vid_hdr_buf[UBI_VID_HDR_SIZE];
 typedef std::map<unsigned long, unsigned long long> t_seqn_map;
 typedef std::map<unsigned long, t_seqn_map> t_vol_seqn_map;
-
-int open_file(char* filename)
-{
-	ubifs_fd = open(filename, O_RDONLY);
-	if (ubifs_fd == -1)
-	{
-		printf("Error: Could not open file %s\n", filename);
-		return 0;
-	}
-	return 1;
-}
 
 int open_temp_file(struct args* args, unsigned long vol_id)
 {
@@ -153,7 +142,7 @@ int readChar(unsigned int ch, int *i)
 	unsigned int b;
 	char buf;
 	++*i;
-	if (read(ubifs_fd, &buf, 1) <= 0)
+	if (read(ubi_fd, &buf, 1) <= 0)
 		return 0;
 
 	if (((unsigned int)buf) == ch)
@@ -168,7 +157,7 @@ int guess_peb_size(int verbose)
 	int found = 0;
 	int pebs[4];
 
-	if (lseek(ubifs_fd, data_offset, SEEK_SET) == -1)
+	if (lseek(ubi_fd, data_offset, SEEK_SET) == -1)
 	{
 		printf("Error: File too small!\n");
 		return 0;
@@ -248,13 +237,13 @@ int process_file(struct args* args)
 	unsigned long long ret_val;
 	t_vol_seqn_map vol_seq_map;
 
-	if (lseek(ubifs_fd, 0, SEEK_SET) == -1)
+	if (lseek(ubi_fd, 0, SEEK_SET) == -1)
 	{
 		printf("Error: Seeking file failed\n");
 		goto err;
 	}
 
-	while ((ret = read(ubifs_fd, buffer, peb_size)) == peb_size)
+	while ((ret = read(ubi_fd, buffer, peb_size)) == peb_size)
 	{
 		if (!check_ec_header(buffer, args->verbose))
 			goto err;
@@ -324,10 +313,10 @@ int unubinize(struct args* args)
 	printf("Starting unubinize\n");
 	char ec_hdr_buf[UBI_EC_HDR_SIZE];
 
-	if (!open_file(args->inputfilename))
+	if (!open_file(ubi_fd, args->inputfilename))
 		goto err;
 
-	if (read(ubifs_fd, &ec_hdr_buf, UBI_EC_HDR_SIZE) != UBI_EC_HDR_SIZE)
+	if (read(ubi_fd, &ec_hdr_buf, UBI_EC_HDR_SIZE) != UBI_EC_HDR_SIZE)
 	{
 		printf("Error: read cannot read file\n");
 		return 0;
@@ -341,9 +330,9 @@ int unubinize(struct args* args)
 	if (!process_file(args))
 		goto err;
 
-	close(ubifs_fd);
+	close(ubi_fd);
 	return 1;
 err:
-	close(ubifs_fd);
+	close(ubi_fd);
 	return 0;
 }

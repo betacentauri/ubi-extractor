@@ -1,4 +1,4 @@
-SRC = ubi-extractor.c unubinize.c crc32.c
+SRC = ubi-extractor.c unubinize.c crc32.c ubifs_reader.c
 
 OBJ = $(SRC:.c=.o)
 

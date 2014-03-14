@@ -1,9 +1,9 @@
 #include "unubinize.h"
+#include "ubifs_reader.h"
 
 struct args {
 	unsigned int nounubi:1;
 	unsigned int list_volumes:1;
-	unsigned int extract:1;
 	unsigned int show:1;
 	unsigned int volume:1;
 	char input_volumename[128];
@@ -21,6 +21,11 @@ struct args {
 	{
 		int i;
 		for (i = 0; i < 128; i++)
+		{
 			out_tmp_fds[i] = -1;
+			ubi_volumenames[i] = NULL;
+		}
 	}
 };
+
+int open_file(int& fd, char* filename);
