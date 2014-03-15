@@ -28,7 +28,7 @@ int read_args(int argc, char *argv[])
 {
 	int option_index = 0;
 	int opt;
-	static const char *short_options = "ulsi:o:m:vh";
+	static const char *short_options = "nlsi:o:m:vh";
 	static const struct option long_options[] = {
 												{"nounubi"    , no_argument      , NULL, 'n'},
 												{"listvolumes", no_argument      , NULL, 'l'},
