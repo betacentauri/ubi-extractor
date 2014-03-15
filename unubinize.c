@@ -131,12 +131,17 @@ int check_vid_header(char* buffer, int verbose)
 	return 1;
 }
 
-int readChar(unsigned int ch, int *i)
+int readChar(int fd, unsigned int ch, int &i, int &eof)
 {
 	char buf;
-	++*i;
-	if (read(ubi_fd, &buf, 1) <= 0)
+	int ret;
+	i++;
+	if ((ret = read(fd, &buf, 1)) <= 0)
+	{
+		if (ret == 0)
+			eof = 1;
 		return 0;
+	}
 
 	if (((unsigned int)buf) == ch)
 		return 1;
@@ -147,6 +152,7 @@ int guess_peb_size(int verbose)
 {
 	int i = data_offset;
 	const int max_bytes = 1024*1024*30;
+	int eof = 0;
 	int found = 0;
 	int pebs[4];
 
@@ -156,12 +162,12 @@ int guess_peb_size(int verbose)
 		return 0;
 	}
 
-	while (found < 4 && i < max_bytes)
+	while (found < 4 && i < max_bytes && !eof)
 	{
-		if (readChar(0x55, &i)) // U
-			if (readChar(0x42, &i))  // B
-				if (readChar(0x49, &i)) // I
-					if (readChar(0x23, &i)) // #
+		if (readChar(ubi_fd, 0x55, i, eof)) // U
+			if (readChar(ubi_fd, 0x42, i, eof))  // B
+				if (readChar(ubi_fd, 0x49, i, eof)) // I
+					if (readChar(ubi_fd, 0x23, i, eof)) // #
 					{
 						if (verbose)
 							printf("Found peb_size %d, found %d\n", i - 4, found);
