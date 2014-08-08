@@ -6,7 +6,7 @@ OUT = ubi-extractor
 
 LDFLAGS= -static
 
-CFLAGS = -O2
+CFLAGS = -O2 -Wall
 
 CC = g++
 
